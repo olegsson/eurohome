@@ -38,13 +38,19 @@ def ladder_user(name):
         WITH t AS (
             SELECT contender_id, sum(magnitude) AS score
             FROM votes
-            WHERE user_id = (SELECT id FROM users where name = :name)
+            WHERE user_id = (SELECT id FROM users WHERE name = :name)
             GROUP BY contender_id
         )
         SELECT country, t.score
         FROM contenders LEFT JOIN t ON id = contender_id
         ORDER BY t.score DESC, country
     """, name=name)
+
+def users():
+    return db_execute("""
+        SELECT name FROM users
+        ORDER BY name
+    """)
 
 actions = {
     'vote': {
@@ -54,6 +60,10 @@ actions = {
     'adduser': {
         'func': vote,
         'methods': ['POST'],
+    },
+    'users': {
+        'func': users,
+        'methods': ['GET'],
     },
     'ladder-global': {
         'func': ladder_global,
