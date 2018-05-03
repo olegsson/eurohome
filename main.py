@@ -1,44 +1,38 @@
-from flask import Flask, render_template, abort, send_from_directory, request
+from flask import Flask, render_template, abort, send_from_directory, request, Response
 from datetime import datetime
 from os import path
 
 from settings import DIR
-from utils import db_execute, jsonify
-from api import actions
+from utils import requires_auth
+from api import make_handler
 
 app = Flask(
     __name__,
     static_url_path=path.join(DIR, 'static')
 )
 
-default_response = {
+default_response = [{
     'message': 'OK'
-}
+}]
+
+@app.route('/api/public/<action>', methods=['GET', 'POST'])
+def handler_public(action):
+    return make_handler()(action)
 
 @app.route('/api/<action>', methods=['GET', 'POST'])
-def do_stuff(action):
-    kwargs = dict(request.args.items())
-    try:
-        if action in actions:
-            assert request.method in actions[action]['methods']
-            return jsonify(
-                actions[action]['func'](**kwargs) or default_response
-            )
-        else:
-            abort(404)
-    except Exception as e:
-        print(e)
-        abort(403)
+@requires_auth
+def handler_private(action):
+    return make_handler(public=False)(action)
 
 @app.route('/static/<path:filepath>')
 def send_static(filepath):
     return send_from_directory('static', filepath)
 
 @app.route('/')
+@requires_auth
 def index():
     return render_template(
         'index.html',
-        VERSION=VERSION
     )
 
 if __name__ == '__main__':

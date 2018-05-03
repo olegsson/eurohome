@@ -1,8 +1,8 @@
 from api import *
 
 try:
-    adduser('luka', 'asdf')
-    adduser('hana', 'asdf')
+    register('luka', 'asdf')
+    register('hana', 'asdf')
 except:
     pass
 

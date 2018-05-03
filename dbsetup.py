@@ -27,8 +27,7 @@ db_execute('''
     CREATE TABLE contenders (
         id INTEGER PRIMARY KEY,
         country text UNIQUE NOT NULL,
-        active boolean NOT NULL,
-        score int DEFAULT 0
+        active boolean NOT NULL
     )
 ''')
 db_execute('''
