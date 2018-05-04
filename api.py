@@ -1,6 +1,10 @@
-from utils import db_execute, hash_password, jsonify
-from flask import request
+from flask import request, redirect
+from werkzeug import wrappers
 import uuid
+
+from utils import db_execute, hash_password, jsonify
+
+default_response = [{'message': 'OK'}]
 
 def register(name, password):
     salt = uuid.uuid4().hex
@@ -55,6 +59,10 @@ def users():
     """)
 
 actions_private = {
+    'login': {
+        'func': lambda: redirect('/'),
+        'methods': ['POST'],
+    },
     'vote': {
         'func': vote,
         'methods': ['POST'],
@@ -88,8 +96,9 @@ def make_handler(public=True):
         if action in actions:
             assert request.method in actions[action]['methods']
             data = actions[action]['func'](**kwargs) or default_response
-            print(data)
-            return jsonify(data or default_response)
+            if isinstance(data, wrappers.Response):
+                return data
+            return jsonify(data)
         else:
             abort(404)
         # except Exception as e:
