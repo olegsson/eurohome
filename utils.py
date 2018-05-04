@@ -18,7 +18,7 @@ def db_execute(sql, **kwargs):
         try:
             data = query.fetchall()
         except Exception as e:
-            print(e)
+            # print(e)
             return None
     return data
 
