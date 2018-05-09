@@ -1,6 +1,8 @@
-from flask import Flask, render_template, send_from_directory, request, Response, redirect
+from flask import Flask, render_template, send_from_directory, request, Response, redirect, abort
+from jinja2.exceptions import TemplateNotFound
 from datetime import datetime
 from os import path
+from glob import iglob
 import ujson
 
 from settings import DIR
@@ -28,8 +30,16 @@ def send_static(filepath):
 @app.route('/')
 def index():
     return render_template(
-        'index.html'
+        'index.html',
+        name=check_auth(request),
     )
+
+@app.route('/<page>')
+def viewpage(page):
+    try:
+        return render_template(page+'.html')
+    except TemplateNotFound:
+        abort(404)
 
 if __name__ == '__main__':
     app.run()

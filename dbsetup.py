@@ -20,7 +20,8 @@ db_execute('''
         id INTEGER PRIMARY KEY,
         name text UNIQUE NOT NULL,
         salt text NOT NULL,
-        hash text NOT NULL
+        hash text NOT NULL,
+        session text DEFAULT NULL
     )
 ''')
 db_execute('''

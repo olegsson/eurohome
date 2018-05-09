@@ -3,7 +3,7 @@ function sleep(ms) {
 }
 
 const session_data = {
-    logged_in: false,
+    logged_in: logged_in,
     ladder: [],
     users: [],
     viewing_user: null
@@ -31,11 +31,11 @@ async function update_ladder() {
     let url;
     let user = session_data.viewing_user;
     if (session_data.logged_in && user !== null) {
-        url = '/api/ladder-user?name=session'
+        url = '/api/ladder-user?name=' + user
         credentials = 'same-origin'
     } else {
         url = '/api/public/ladder-global'
-        credentials = 'omit'
+        credentials = 'same-origin'
     }
     await fetch(url, {
         method: 'GET',
@@ -46,7 +46,7 @@ async function update_ladder() {
         session_data.ladder = data;
     })
     .catch(reject => {});
-    await sleep(500);
+    await sleep(1000);
     update_ladder();
 }
 
@@ -68,16 +68,5 @@ async function update_users() {
     }
 }
 
-fetch('/api/public/logged_in', {
-    method: 'GET',
-    credentials: 'same-origin'
-})
-.then(resp_handler)
-.then(data => {
-    session_data.logged_in = data;
-    if (data) {
-        update_users();
-    }
-    update_ladder();
-})
-.catch(reject => {});
+update_ladder()
+update_users()

@@ -2,15 +2,7 @@ from flask import abort, request, redirect, Response
 from werkzeug import wrappers
 import uuid
 
-from utils import db_execute, hash_password, jsonify, default_response, check_auth
-
-def register(name, password):
-    salt = uuid.uuid4().hex
-    hash = hash_password(salt, password)
-    db_execute("""
-        INSERT INTO users (name, salt, hash)
-        VALUES (:name, :salt, :hash)
-    """, name=name, salt=salt, hash=hash)
+from utils import db_execute, salt_hash, jsonify, default_response, check_auth
 
 def vote(country, magnitude):
     name = request.authorization.username
@@ -56,13 +48,54 @@ def users():
         ORDER BY name
     """)
 
+def login(name, password):
+    resp = redirect('/')
+    try:
+        salt, hash = db_execute('''
+            SELECT salt, hash
+            FROM users
+            WHERE name = :name
+        ''', name=name)[0]
+        if hash == salt_hash(salt, password):
+            token = salt_hash(uuid.uuid4().hex, name)
+            db_execute('''
+                UPDATE users
+                SET session = :token
+                WHERE name = :name
+            ''', token=token, name=name)
+            resp.set_cookie('token', token)
+            return resp
+    except IndexError as e:
+        pass
+    resp.set_cookie('token', '', expires=0)
+    return resp
+
+def register(name, password):
+    if '' in (name, password):
+        return redirect('/')
+    salt = uuid.uuid4().hex
+    hash = salt_hash(salt, password)
+    db_execute("""
+        INSERT INTO users (name, salt, hash)
+        VALUES (:name, :salt, :hash)
+    """, name=name, salt=salt, hash=hash)
+    return login(name, password)
+
+def logout():
+    token = request.cookies.get('token')
+    if token is not None:
+        db_execute('''
+            UPDATE users
+            SET session = NULL
+            WHERE session = :token
+        ''', token=token)
+    resp = redirect('/')
+    resp.set_cookie('token', '', expires=0)
+    return resp
+
 actions_private = {
-    'login': {
-        'func': lambda: Response(
-            'Could not verify your access level for that URL.\n'
-            'You have to login with proper credentials', 401,
-            {'WWW-Authenticate': 'Basic realm="Login Required"'}
-        ),
+    'logout': {
+        'func': logout,
         'methods': ['GET', 'POST'],
     },
     'vote': {
@@ -88,10 +121,10 @@ actions_public = {
         'func': register,
         'methods': ['GET', 'POST'],
     },
-    'logged_in': {
-        'func': lambda: check_auth(request),
+    'login': {
+        'func': login,
         'methods': ['GET', 'POST'],
-    }
+    },
 }
 
 def make_handler(public=True):
@@ -103,6 +136,7 @@ def make_handler(public=True):
             assert request.method in actions[action]['methods']
             data = actions[action]['func'](**kwargs) or default_response
             if isinstance(data, wrappers.Response):
+                print('yay')
                 return data
             return jsonify(data)
         else:

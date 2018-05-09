@@ -18,13 +18,15 @@
 
 <body>
     <div id='app' v-cloak>
-        {% raw %}
         <nav>
-            <a href='/api/login' v-if='!logged_in'>login</a>
-            <a href='/' v-if='!logged_in'>register</a>
-            <a v-if='logged_in' @click='logout'>logout</a>
+            <a href='/login' v-if='!logged_in'>login</a>
+            <a href='/register' v-if='!logged_in'>register</a>
+
+            <span v-if='logged_in'>hello {{ name }}</span>
+            <a href='/api/logout' v-if='logged_in' @click='logout'>logout</a>
         </nav>
 
+        {% raw %}
         <table>
             <tr v-for='user in users'>
                 <td>{{ user.name }}</td>
@@ -38,6 +40,9 @@
         </table>
         {% endraw %}
     </div>
+    <script type='text/javascript'>
+        window.logged_in = {{ 'true' if name else 'false' }}
+    </script>
     <script src='/static/js/main.js'></script>
 </body>
 </html>

@@ -33,31 +33,32 @@ def jsonify(data):
     resp.headers['Content-Type'] = 'application/json'
     return resp
 
-def hash_password(salt, password):
-    return hashlib.sha512((salt+password).encode('utf-8')).hexdigest()
+def salt_hash(salt, string):
+    return hashlib.sha512((salt+string).encode('utf-8')).hexdigest()
 
 def check_auth(request):
-    auth = request.authorization
-    if not auth:
-        return False
-    try:
-        salt, hash = db_execute('''
-            SELECT salt, hash
-            FROM users
-            WHERE name = :name
-        ''', name=auth.username)[0]
-    except IndexError as e:
-        return False
-    return hash == hash_password(salt, auth.password)
+    token = request.cookies.get('token')
+    if token is not None:
+        try:
+            name = db_execute('''
+                SELECT name
+                FROM users
+                WHERE session = :token
+            ''', token=token)[0][0]
+            return name
+        except IndexError as e:
+            pass
+    return False
 
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if check_auth(request):
             return f(*args, **kwargs)
-        return Response(
-            'Could not verify your access level for that URL.\n'
-            'You have to login with proper credentials', 401,
-            {'WWW-Authenticate': 'Basic realm="Login Required"'}
-        )
+        abort(401)
+        # return Response(
+        #     'Could not verify your access level for that URL.\n'
+        #     'You have to login with proper credentials', 401,
+        #     {'WWW-Authenticate': 'Basic realm="Login Required"'}
+        # )
     return decorated

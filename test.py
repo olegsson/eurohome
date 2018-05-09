@@ -15,3 +15,4 @@ vote('hana', 'uNITED Kingdom', 7)
 
 ladder_global()
 ladder_user('hana')
+users()
