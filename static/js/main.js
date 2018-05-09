@@ -8,7 +8,8 @@ const session_data = {
     users: [],
     viewing_user: null,
     voting_for: null,
-    votes_allowed: [...Array(10).keys()].map(i => i+1)
+    votes_allowed: [...Array(10).keys()].map(i => i+1),
+    search_str: ''
 };
 
 const app = new Vue({
@@ -22,16 +23,28 @@ const app = new Vue({
             }
         ).then(resolve => update_ladder()),
         set_country: country => {
-            session_data.viewing_user = null
-            session_data.voting_for = country
-            update_ladder()
+            session_data.viewing_user = null;
+            session_data.voting_for = country;
+            session_data.search_str = '';
+            update_ladder();
         },
         set_user: user => {
-            session_data.voting_for = null
-            session_data.viewing_user = user
-            update_ladder()
+            session_data.voting_for = null;
+            session_data.viewing_user = user;
+            session_data.search_str = '';
+            update_ladder();
         },
-        update: () => update_ladder()
+        update: () => update_ladder(),
+        filtered_ladder: () => {
+            if (session_data.search_str === '') {
+                return session_data.ladder;
+            }
+            return fuzzysort.go(
+                session_data.search_str, session_data.ladder, {
+                    key: 'country'
+                }
+            ).map(x => x.obj);
+        }
     }
 });
 
@@ -40,16 +53,16 @@ function resp_handler (resolve) {
         session_data.logged_in = false;
         throw Error(resolve.statusText);
     }
-    return resolve.json()
+    return resolve.json();
 }
 
 async function update_ladder(step=null) {
     let url;
     let user = session_data.viewing_user;
     if (session_data.logged_in && user !== null) {
-        url = '/api/ladder-user?name=' + user
+        url = '/api/ladder-user?name=' + user;
     } else {
-        url = '/api/public/ladder-global'
+        url = '/api/public/ladder-global';
     }
     await fetch(url, {
         method: 'GET',
@@ -86,5 +99,5 @@ async function update_users(step=null) {
     }
 }
 
-update_ladder(1000)
-update_users(1000)
+update_ladder(1000);
+update_users(1000);

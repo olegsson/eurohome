@@ -51,14 +51,20 @@
         </div>
 
         <div class='container'>
+            <div v-if='viewing_user === null && voting_for === null'>
+                <input v-model='search_str' placeholder='search country'>
+                <span @click='search_str = ""'>
+                    clear
+                </span>
+            </div>
             <table>
                 <th v-if='logged_in && viewing_user !== null'>
                     voted by {{ viewing_user }}
                     <span @click='viewing_user = null; update()'>
-                        cancel
+                        clear
                     </span>
                 </th>
-                <tr v-for='item in ladder' @click='set_country(item.country)'>
+                <tr v-for='item in filtered_ladder()' @click='set_country(item.country)'>
                     <td>{{ item.country.toUpperCase() }}</td>
                     <td>{{ item.score }}</td>
                 </tr>
@@ -70,6 +76,7 @@
     <script type='text/javascript'>
         window.logged_in = {{ 'true' if name else 'false' }}
     </script>
+    <script src='/static/js/vendor/fuzzysort.js'></script>
     <script src='/static/js/main.js'></script>
 </body>
 </html>
