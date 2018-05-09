@@ -1,9 +1,10 @@
-from flask import Flask, render_template, abort, send_from_directory, request, Response, redirect
+from flask import Flask, render_template, send_from_directory, request, Response, redirect
 from datetime import datetime
 from os import path
+import ujson
 
 from settings import DIR
-from utils import requires_auth
+from utils import requires_auth, check_auth
 from api import make_handler
 
 app = Flask(
@@ -27,7 +28,7 @@ def send_static(filepath):
 @app.route('/')
 def index():
     return render_template(
-        'index.html',
+        'index.html'
     )
 
 if __name__ == '__main__':

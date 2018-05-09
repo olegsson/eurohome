@@ -1,10 +1,8 @@
-from flask import request, redirect
+from flask import abort, request, redirect, Response
 from werkzeug import wrappers
 import uuid
 
-from utils import db_execute, hash_password, jsonify
-
-default_response = [{'message': 'OK'}]
+from utils import db_execute, hash_password, jsonify, default_response, check_auth
 
 def register(name, password):
     salt = uuid.uuid4().hex
@@ -33,9 +31,9 @@ def ladder_global():
             SELECT contender_id, SUM(magnitude) AS score FROM votes
             GROUP BY contender_id
         )
-        SELECT country, IFNULL(t.score, 0)
+        SELECT country, IFNULL(t.score, 0) AS score
         FROM contenders LEFT JOIN t ON id = contender_id
-        ORDER BY t.score DESC, country
+        ORDER BY score DESC, country
     """)
 
 def ladder_user(name=None):
@@ -60,19 +58,19 @@ def users():
 
 actions_private = {
     'login': {
-        'func': lambda: redirect('/'),
-        'methods': ['POST'],
+        'func': lambda: Response(
+            'Could not verify your access level for that URL.\n'
+            'You have to login with proper credentials', 401,
+            {'WWW-Authenticate': 'Basic realm="Login Required"'}
+        ),
+        'methods': ['GET', 'POST'],
     },
     'vote': {
         'func': vote,
-        'methods': ['POST'],
+        'methods': ['GET', 'POST'],
     },
     'users': {
         'func': users,
-        'methods': ['GET'],
-    },
-    'ladder-global': {
-        'func': ladder_global,
         'methods': ['GET'],
     },
     'ladder-user': {
@@ -82,10 +80,18 @@ actions_private = {
 }
 
 actions_public = {
+    'ladder-global': {
+        'func': ladder_global,
+        'methods': ['GET'],
+    },
     'register': {
         'func': register,
-        'methods': ['POST'],
+        'methods': ['GET', 'POST'],
     },
+    'logged_in': {
+        'func': lambda: check_auth(request),
+        'methods': ['GET', 'POST'],
+    }
 }
 
 def make_handler(public=True):

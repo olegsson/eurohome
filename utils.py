@@ -22,37 +22,42 @@ def db_execute(sql, **kwargs):
             return None
     return data
 
+default_response = [{'message': 'OK'}]
+
 def jsonify(data):
-    resp = make_response(
-        ujson.dumps(
-            (dict(row) for row in data)
-        ), '200'
-    )
+    try:
+        resdata = (dict(row) for row in data)
+    except TypeError:
+        resdata = data
+    resp = make_response(ujson.dumps(resdata), '200')
     resp.headers['Content-Type'] = 'application/json'
     return resp
 
 def hash_password(salt, password):
     return hashlib.sha512((salt+password).encode('utf-8')).hexdigest()
 
-def check_auth(name, password):
+def check_auth(request):
+    auth = request.authorization
+    if not auth:
+        return False
     try:
         salt, hash = db_execute('''
             SELECT salt, hash
             FROM users
             WHERE name = :name
-        ''', name=name)[0]
+        ''', name=auth.username)[0]
     except IndexError as e:
         return False
-    return hash == hash_password(salt, password)
+    return hash == hash_password(salt, auth.password)
 
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            return Response(
+        if check_auth(request):
+            return f(*args, **kwargs)
+        return Response(
             'Could not verify your access level for that URL.\n'
             'You have to login with proper credentials', 401,
-            {'WWW-Authenticate': 'Basic realm="Login Required"'})
-        return f(*args, **kwargs)
+            {'WWW-Authenticate': 'Basic realm="Login Required"'}
+        )
     return decorated

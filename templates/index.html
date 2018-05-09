@@ -6,17 +6,38 @@
 
     <title>Eurohome</title>
 
-    <!-- <link rel='stylesheet' href='/static/css/styles.css?v=1.0'> -->
+    <link rel='stylesheet' href='/static/css/styles.css'>
 
     <!--[if lt IE 9]>
         <script src='https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js'>
         </script>
     <![endif]-->
+    <script src='/static/js/vendor/vue.js'></script>
 
 </head>
 
 <body>
+    <div id='app' v-cloak>
+        {% raw %}
+        <nav>
+            <a href='/api/login' v-if='!logged_in'>login</a>
+            <a href='/' v-if='!logged_in'>register</a>
+            <a v-if='logged_in' @click='logout'>logout</a>
+        </nav>
 
-    <!-- <script src='/static/js/main.js'></script> -->
+        <table>
+            <tr v-for='user in users'>
+                <td>{{ user.name }}</td>
+            </tr>
+        </table>
+        <table>
+            <tr v-for='item in ladder'>
+                <td>{{ item.country }}</td>
+                <td>{{ item.score }}</td>
+            </tr>
+        </table>
+        {% endraw %}
+    </div>
+    <script src='/static/js/main.js'></script>
 </body>
 </html>
