@@ -19,26 +19,53 @@
 <body>
     <div id='app' v-cloak>
         <nav>
+            <span v-if='logged_in'>
+                {{ name if name else '' }}
+            </span>
+            <a href='/api/logout' v-if='logged_in'>logout</a>
+
             <a href='/login' v-if='!logged_in'>login</a>
             <a href='/register' v-if='!logged_in'>register</a>
-
-            <span v-if='logged_in'>hello {{ name }}</span>
-            <a href='/api/logout' v-if='logged_in' @click='logout'>logout</a>
         </nav>
 
         {% raw %}
-        <table>
-            <tr v-for='user in users'>
-                <td>{{ user.name }}</td>
-            </tr>
-        </table>
-        <table>
-            <tr v-for='item in ladder'>
-                <td>{{ item.country }}</td>
-                <td>{{ item.score }}</td>
-            </tr>
-        </table>
+        <div class='container' v-if='logged_in'>
+            <div>registered users</div>
+            <ul>
+                <li v-for='user in users' @click='set_user(user.name)'>
+                    {{ user.name }}
+                </li>
+            </ul>
+        </div>
+
+        <div class='container' v-if='logged_in && voting_for !== null'>
+            <div>voting for {{ voting_for.toUpperCase() }}</div>
+            <div id='vote-nums'>
+                <span v-for='v in votes_allowed' @click='vote(voting_for, v)'>
+                    {{ v }}
+                </span>
+                <span @click='voting_for = null; update()'>
+                    cancel
+                </span>
+            </div>
+        </div>
+
+        <div class='container'>
+            <table>
+                <th v-if='logged_in && viewing_user !== null'>
+                    voted by {{ viewing_user }}
+                    <span @click='viewing_user = null; update()'>
+                        cancel
+                    </span>
+                </th>
+                <tr v-for='item in ladder' @click='set_country(item.country)'>
+                    <td>{{ item.country.toUpperCase() }}</td>
+                    <td>{{ item.score }}</td>
+                </tr>
+            </table>
+        </div>
         {% endraw %}
+
     </div>
     <script type='text/javascript'>
         window.logged_in = {{ 'true' if name else 'false' }}

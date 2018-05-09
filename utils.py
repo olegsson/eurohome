@@ -45,6 +45,7 @@ def check_auth(request):
                 FROM users
                 WHERE session = :token
             ''', token=token)[0][0]
+            request.name = name
             return name
         except IndexError as e:
             pass

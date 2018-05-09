@@ -6,16 +6,32 @@ const session_data = {
     logged_in: logged_in,
     ladder: [],
     users: [],
-    viewing_user: null
+    viewing_user: null,
+    voting_for: null,
+    votes_allowed: [...Array(10).keys()].map(i => i+1)
 };
 
 const app = new Vue({
     el: '#app',
     data: session_data,
     methods: {
-        logout: () => {
-            session_data.logged_in = false;
-        }
+        vote: (country, magnitude) => fetch(
+            `/api/vote?country=${encodeURIComponent(country)}`
+            +`&magnitude=${magnitude}`, {
+                credentials: 'same-origin'
+            }
+        ).then(resolve => update_ladder()),
+        set_country: country => {
+            session_data.viewing_user = null
+            session_data.voting_for = country
+            update_ladder()
+        },
+        set_user: user => {
+            session_data.voting_for = null
+            session_data.viewing_user = user
+            update_ladder()
+        },
+        update: () => update_ladder()
     }
 });
 
@@ -27,15 +43,13 @@ function resp_handler (resolve) {
     return resolve.json()
 }
 
-async function update_ladder() {
+async function update_ladder(step=null) {
     let url;
     let user = session_data.viewing_user;
     if (session_data.logged_in && user !== null) {
         url = '/api/ladder-user?name=' + user
-        credentials = 'same-origin'
     } else {
         url = '/api/public/ladder-global'
-        credentials = 'same-origin'
     }
     await fetch(url, {
         method: 'GET',
@@ -46,11 +60,13 @@ async function update_ladder() {
         session_data.ladder = data;
     })
     .catch(reject => {});
-    await sleep(1000);
-    update_ladder();
+    if (step !== null) {
+        await sleep(step);
+        update_ladder(step);
+    }
 }
 
-async function update_users() {
+async function update_users(step=null) {
     if (session_data.logged_in) {
         await fetch('/api/users', {
             method: 'GET',
@@ -61,12 +77,14 @@ async function update_users() {
             session_data.users = data;
         })
         .catch(reject => {});
-        await sleep(1000);
-        update_users();
+        if (step !== null) {
+            await sleep(step);
+            update_users(step);
+        }
     } else {
         session_data.users = [];
     }
 }
 
-update_ladder()
-update_users()
+update_ladder(1000)
+update_users(1000)

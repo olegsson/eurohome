@@ -5,7 +5,7 @@ import uuid
 from utils import db_execute, salt_hash, jsonify, default_response, check_auth
 
 def vote(country, magnitude):
-    name = request.authorization.username
+    name = request.name
     magnitude = int(magnitude)
     assert 0 < magnitude <= 10
     db_execute("""
@@ -37,7 +37,7 @@ def ladder_user(name=None):
             WHERE user_id = (SELECT id FROM users WHERE name = :name)
             GROUP BY contender_id
         )
-        SELECT country, IFNULL(t.score, 0)
+        SELECT country, IFNULL(t.score, 0) AS score
         FROM contenders LEFT JOIN t ON id = contender_id
         ORDER BY t.score DESC, country
     """, name=name)
