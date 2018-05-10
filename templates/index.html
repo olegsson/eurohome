@@ -47,8 +47,12 @@
             <table id='country-list'>
                 <tr v-for='item in filtered_ladder()'
                     @click='set_country(item.country)'>
-                    <td v-bind:class='{active: item.country === voting_for}'>{{ item.country.toUpperCase() }}</td>
-                    <td v-bind:class='{active: item.country === voting_for}'>{{ item.score }}</td>
+                    <td v-bind:class='{active: item.country === voting_for}'>
+                        {{ item.country.toUpperCase() }}
+                    </td>
+                    <td v-bind:class='{active: item.country === voting_for}'>
+                        {{ item.score }}
+                    </td>
                 </tr>
             </table>
         </div>
@@ -67,13 +71,16 @@
             <div class='search-field'>
                 <input v-model='search_str'
                     placeholder='search countries...'
-                    @keydown.27='search_str = ""'>
+                    @keydown.27='search_str = ""'
+                    @focus='search_focus = true'
+                    @blur='search_focus = false'>
                 <button @click='search_str = ""' v-if='search_str !== ""'>
                     clear
                 </button>
             </div>
 
-            <div class='container' v-if='logged_in && voting_for !== null'>
+            <div class='container'
+                v-if='logged_in && !search_focus && voting_for !== null'>
                 <div>voting for {{ voting_for.toUpperCase() }}</div>
                 <div class='pick-list vote-nums'>
                     <button v-for='v in votes_allowed'
@@ -89,7 +96,7 @@
                 </div>
             </div>
 
-            <div class='container' v-if='logged_in'>
+            <div class='container' v-if='logged_in && !search_focus'>
                 <input type='checkbox' name='view-users'
                     v-model='userlist_open' style='display:none;'>
                 <label for='view-users'>

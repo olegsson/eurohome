@@ -11,7 +11,8 @@ const session_data = {
     userlist_open: false,
     voting_for: null,
     votes_allowed: [...Array(10).keys()].map(i => i+1),
-    search_str: ''
+    search_str: '',
+    search_focus: false
 };
 
 const app = new Vue({
@@ -21,7 +22,8 @@ const app = new Vue({
         vote: (country, magnitude) => fetch(
             `/api/vote?country=${encodeURIComponent(country)}`
             +`&magnitude=${magnitude}`, {
-                credentials: 'same-origin'
+                credentials: 'same-origin',
+                method: 'POST'
             }
         ).then(resolve => {
             session_data.own_votes[session_data.voting_for] = magnitude;

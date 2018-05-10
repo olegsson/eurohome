@@ -100,7 +100,7 @@ actions_private = {
     },
     'vote': {
         'func': vote,
-        'methods': ['GET', 'POST'],
+        'methods': ['POST'],
     },
     'users': {
         'func': users,
@@ -130,7 +130,7 @@ actions_public = {
 def make_handler(public=True):
     actions = actions_public if public else actions_private
     def do_stuff(action):
-        kwargs = dict(request.args.items())
+        kwargs = dict(request.args.items()) or dict(request.form.items())
         # try:
         if action in actions:
             assert request.method in actions[action]['methods']

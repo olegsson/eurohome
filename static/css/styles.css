@@ -128,6 +128,10 @@ a, a:visited {
     border: 2px solid white;
 }
 
+#country-list tr:hover td {
+    background: #aaa;
+}
+
 #country-list td.active, button.active {
     background: black;
     color: white;
@@ -144,6 +148,34 @@ a, a:visited {
 
 @media(min-width:60em) {
     html {
-        font-size: 120%;
+        font-size: 100%;
+    }
+
+    .container, .page-lower, #country-list-container {
+        bottom: auto;
+        display: inline-block;
+        width: auto;
+        background: white;
+        text-align: left;
+    }
+
+    nav {
+        position: fixed;
+        width: 100%;
+    }
+
+    #country-list {
+        margin-top: 75px;
+    }
+
+    .page-lower {
+        position: fixed;
+        top: 75px;
+        left: 35%;
+        width: 50%;
+    }
+
+    #country-list {
+        width: 30%;
     }
 }
