@@ -3,9 +3,11 @@
 <html lang='en'>
 <head>
     <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
 
     <title>Eurohome - register</title>
 
+    <link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet">
     <link rel='stylesheet' href='/static/css/styles.css'>
 
     <!--[if lt IE 9]>
@@ -16,11 +18,20 @@
 </head>
 
 <body>
+    <h3>
+        Eurohome registration
+    </h3>
     <div class='auth-form'>
         <form action='/api/public/register'>
-            <input type='text' placeholder='username' name='name' required>
-            <input type='password' placeholder='password' name='password' required>
-            <button type='submit'>register</button>
+            <div>
+                <input type='text' placeholder='username...' name='name' required>
+            </div>
+            <div>
+                <input type='password' placeholder='password...' name='password' required>
+            </div>
+            <div>
+                <button type='submit'>register</button>
+            </div>
         </form>
     </div>
 </body>

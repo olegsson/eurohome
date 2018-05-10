@@ -3,9 +3,11 @@
 <html lang='en'>
 <head>
     <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
 
     <title>Eurohome</title>
 
+    <link href='https://fonts.googleapis.com/css?family=Dosis' rel='stylesheet'>
     <link rel='stylesheet' href='/static/css/styles.css'>
 
     <!--[if lt IE 9]>
@@ -18,53 +20,36 @@
 
 <body>
     <div id='app' v-cloak>
-        <nav>
-            <span v-if='logged_in'>
-                {{ name if name else '' }}
-            </span>
-            <a href='/api/logout' v-if='logged_in'>logout</a>
 
-            <a href='/login' v-if='!logged_in'>login</a>
-            <a href='/register' v-if='!logged_in'>register</a>
+        <nav>
+            <ul class='navbar'>
+                <li class='nav-title'>EUROHOME</li>
+                <li v-if='logged_in'>
+                    <span>
+                        {{ 'hello ' + name if name else '' }}
+                    </span>
+                </li>
+                <li v-if='logged_in'>
+                    <a href='/api/logout'>logout</a>
+                </li>
+
+                <li v-if='!logged_in'>
+                    <a href='/login'>login</a>
+                </li>
+                <li v-if='!logged_in'>
+                    <a href='/register'>register</a>
+                </li>
+            </ul>
         </nav>
 
         {% raw %}
-        <div class='container' v-if='logged_in'>
-            <div>registered users</div>
-            <ul>
-                <li v-for='user in users' @click='set_user(user.name)'>
-                    {{ user.name }}
-                </li>
-            </ul>
-        </div>
-
-        <div class='container' v-if='logged_in && voting_for !== null'>
-            <div>voting for {{ voting_for.toUpperCase() }}</div>
-            <div id='vote-nums'>
-                <span v-for='v in votes_allowed'
-                    @click='vote(voting_for, v)'
-                    v-bind:class='{voted: v === own_votes[voting_for]}'>
-                    {{ v }}
-                </span>
-                <span @click='voting_for = null; update()'>
-                    cancel
-                </span>
-            </div>
-        </div>
-
         <div class='container'>
-            <div>
-                <input v-model='search_str' placeholder='search country'>
-                <span @click='search_str = ""'>
-                    clear
-                </span>
-            </div>
             <table>
                 <th v-if='logged_in && viewing_user !== null'>
                     voted by {{ viewing_user }}
-                    <span @click='viewing_user = null; update()'>
+                    <button @click='viewing_user = null; update()'>
                         clear
-                    </span>
+                    </button>
                 </th>
                 <tr v-for='item in filtered_ladder()'
                     @click='set_country(item.country)'>
@@ -73,6 +58,48 @@
                 </tr>
             </table>
         </div>
+
+        <div class='page-lower'>
+
+            <div class='search-field'>
+                <input v-model='search_str'
+                    placeholder='search countries...'
+                    @keydown.27='search_str = ""'>
+                <button @click='search_str = ""'>
+                    clear
+                </button>
+            </div>
+
+            <div class='container' v-if='logged_in && voting_for !== null'>
+                <div>voting for {{ voting_for.toUpperCase() }}</div>
+                <div class='pick-list'>
+                    <button v-for='v in votes_allowed'
+                        @click='vote(voting_for, v)'
+                        v-bind:class='{active: v === own_votes[voting_for]}'>
+                        {{ v }}
+                    </button>
+                </div>
+                <div>
+                    <button @click='voting_for = null; update()'>
+                        cancel
+                    </button>
+                </div>
+            </div>
+
+            <div class='container' v-if='logged_in'>
+                <div>registered users</div>
+                <div class='pick-list'>
+                    <button v-for='user in users'
+                        @click='set_user(user.name)'
+                        v-bind:class='{active: user.name === viewing_user}'>
+                        {{ user.name }}
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+
         {% endraw %}
 
     </div>
