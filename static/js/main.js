@@ -8,6 +8,7 @@ const session_data = {
     ladder: [],
     users: [],
     viewing_user: null,
+    userlist_open: false,
     voting_for: null,
     votes_allowed: [...Array(10).keys()].map(i => i+1),
     search_str: ''
@@ -36,6 +37,7 @@ const app = new Vue({
             session_data.voting_for = null;
             session_data.viewing_user = user;
             session_data.search_str = '';
+            session_data.userlist_open = false;
             update_ladder();
         },
         update: () => update_ladder(),

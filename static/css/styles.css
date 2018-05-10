@@ -58,7 +58,13 @@ button:focus, button:active, button:hover {
 .pick-list button {
     margin: 2px;
     border-radius: 2px;
-    /* background: white; */
+    background: white;
+    color: #999;
+}
+
+.vote-nums button {
+    width: 30px;
+    height: 30px;
 }
 
 .page-lower {
@@ -103,7 +109,26 @@ a, a:visited {
     color: white;
 }
 
-.active {
+#country-list {
+    font-weight: bold;
+    table-layout: fixed;
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+}
+
+.country-list-container {
+    background: white;
+}
+
+#country-list td {
+    padding: 4px;
+    background: #888;
+    color: white;
+    border: 2px solid white;
+}
+
+#country-list td.active, button.active {
     background: black;
     color: white;
 }
@@ -115,10 +140,6 @@ a, a:visited {
 .auth-form input, .auth-form button {
     width: 150px;
     /* text-align: center; */
-}
-
-.search-field {
-    background: white;
 }
 
 @media(min-width:60em) {

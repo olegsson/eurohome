@@ -43,36 +43,39 @@
         </nav>
 
         {% raw %}
-        <div class='container'>
-            <table>
-                <th v-if='logged_in && viewing_user !== null'>
-                    voted by {{ viewing_user }}
-                    <button @click='viewing_user = null; update()'>
-                        clear
-                    </button>
-                </th>
+        <div class='container country-list-container'>
+            <table id='country-list'>
                 <tr v-for='item in filtered_ladder()'
                     @click='set_country(item.country)'>
-                    <td>{{ item.country.toUpperCase() }}</td>
-                    <td>{{ item.score }}</td>
+                    <td v-bind:class='{active: item.country === voting_for}'>{{ item.country.toUpperCase() }}</td>
+                    <td v-bind:class='{active: item.country === voting_for}'>{{ item.score }}</td>
                 </tr>
             </table>
         </div>
 
         <div class='page-lower'>
 
+            <div v-if='logged_in && viewing_user !== null'>
+                <h3>
+                    voted by {{ viewing_user }}
+                </h3>
+                <button @click='viewing_user = null; update()'>
+                    clear
+                </button>
+            </div>
+
             <div class='search-field'>
                 <input v-model='search_str'
                     placeholder='search countries...'
                     @keydown.27='search_str = ""'>
-                <button @click='search_str = ""'>
+                <button @click='search_str = ""' v-if='search_str !== ""'>
                     clear
                 </button>
             </div>
 
             <div class='container' v-if='logged_in && voting_for !== null'>
                 <div>voting for {{ voting_for.toUpperCase() }}</div>
-                <div class='pick-list'>
+                <div class='pick-list vote-nums'>
                     <button v-for='v in votes_allowed'
                         @click='vote(voting_for, v)'
                         v-bind:class='{active: v === own_votes[voting_for]}'>
@@ -87,8 +90,15 @@
             </div>
 
             <div class='container' v-if='logged_in'>
-                <div>registered users</div>
-                <div class='pick-list'>
+                <input type='checkbox' name='view-users'
+                    v-model='userlist_open' style='display:none;'>
+                <label for='view-users'>
+                    <button @click='userlist_open = !userlist_open'
+                        v-bind:class='{active: userlist_open}'>
+                        view users
+                    </button>
+                </label>
+                <div class='pick-list' v-if='userlist_open'>
                     <button v-for='user in users'
                         @click='set_user(user.name)'
                         v-bind:class='{active: user.name === viewing_user}'>
