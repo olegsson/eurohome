@@ -4,6 +4,7 @@ function sleep(ms) {
 
 const session_data = {
     logged_in: logged_in,
+    own_votes: own_votes,
     ladder: [],
     users: [],
     viewing_user: null,
@@ -21,7 +22,10 @@ const app = new Vue({
             +`&magnitude=${magnitude}`, {
                 credentials: 'same-origin'
             }
-        ).then(resolve => update_ladder()),
+        ).then(resolve => {
+            session_data.own_votes[session_data.voting_for] = magnitude;
+            update_ladder();
+        }),
         set_country: country => {
             session_data.viewing_user = null;
             session_data.voting_for = country;
@@ -48,7 +52,7 @@ const app = new Vue({
     }
 });
 
-function resp_handler (resolve) {
+function resp_handler(resolve) {
     if (!resolve.ok) {
         session_data.logged_in = false;
         throw Error(resolve.statusText);

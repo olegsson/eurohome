@@ -4,7 +4,7 @@
 <head>
     <meta charset='utf-8'>
 
-    <title>Eurohome</title>
+    <title>Eurohome - login</title>
 
     <link rel='stylesheet' href='/static/css/styles.css'>
 
@@ -16,10 +16,12 @@
 </head>
 
 <body>
-    <form action='/api/public/login'>
-        <input type='text' placeholder='username' name='name' required>
-        <input type='text' placeholder='password' name='password' required>
-        <button type='submit'>login</button>
-    </form>
+    <div class='auth-form'>
+        <form action='/api/public/login'>
+            <input type='text' placeholder='username' name='name' required>
+            <input type='password' placeholder='password' name='password' required>
+            <button type='submit'>login</button>
+        </form>
+    </div>
 </body>
 </html>

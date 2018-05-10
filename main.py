@@ -6,8 +6,8 @@ from glob import iglob
 import ujson
 
 from settings import DIR
-from utils import requires_auth, check_auth
-from api import make_handler
+from utils import requires_auth, check_auth, jsonify
+from api import make_handler, ladder_user
 
 app = Flask(
     __name__,
@@ -29,9 +29,12 @@ def send_static(filepath):
 
 @app.route('/')
 def index():
+    name = check_auth(request)
+    votes = dict(ladder_user(name)) if name else {}
     return render_template(
         'index.html',
-        name=check_auth(request),
+        name=name,
+        votes=votes,
     )
 
 @app.route('/<page>')
