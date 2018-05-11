@@ -1,5 +1,9 @@
 import uuid, hashlib
-import ujson
+
+try:
+    import ujson
+except ImportError:
+    import json as ujson # for running on termux
 
 from utils import db_execute
 

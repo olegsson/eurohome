@@ -1,8 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
-import hashlib, ujson
+import hashlib
 from flask import make_response, request, Response, abort
 from functools import wraps
+
+try:
+    import ujson
+except ImportError:
+    import json as ujson # for running on termux
 
 from settings import DB
 
@@ -29,7 +34,11 @@ def jsonify(data):
         resdata = (dict(row) for row in data)
     except TypeError:
         resdata = data
-    resp = make_response(ujson.dumps(resdata), '200')
+    try:
+        resdata = ujson.dumps(resdata)
+    except TypeError:
+        resdata = ujson.dumps(list(resdata))
+    resp = make_response(resdata, '200')
     resp.headers['Content-Type'] = 'application/json'
     return resp
 
@@ -57,9 +66,4 @@ def requires_auth(f):
         if check_auth(request):
             return f(*args, **kwargs)
         abort(401)
-        # return Response(
-        #     'Could not verify your access level for that URL.\n'
-        #     'You have to login with proper credentials', 401,
-        #     {'WWW-Authenticate': 'Basic realm="Login Required"'}
-        # )
     return decorated

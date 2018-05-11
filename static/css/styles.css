@@ -143,7 +143,6 @@ a, a:visited {
 
 .auth-form input, .auth-form button {
     width: 150px;
-    /* text-align: center; */
 }
 
 @media(min-width:60em) {

@@ -3,7 +3,11 @@ from jinja2.exceptions import TemplateNotFound
 from datetime import datetime
 from os import path
 from glob import iglob
-import ujson
+
+try:
+    import ujson
+except ImportError:
+    import json as ujson # for running on termux
 
 from settings import DIR
 from utils import requires_auth, check_auth, jsonify
