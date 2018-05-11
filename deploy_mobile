@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/data/data/com.termux/files/usr/bin/bash
 
 # no sudo on termux
 gunicorn main:app -w 8 -b 0.0.0.0:8000
