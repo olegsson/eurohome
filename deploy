@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-sudo ~/miniconda3/bin/gunicorn main:app -w 8 -b 0.0.0.0:80
+sudo ~/miniconda3/bin/gunicorn main:app -w 6 -b 0.0.0.0:80

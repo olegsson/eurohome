@@ -96,7 +96,7 @@ def logout():
 actions_private = {
     'logout': {
         'func': logout,
-        'methods': ['GET', 'POST'],
+        'methods': ['GET'],
     },
     'vote': {
         'func': vote,
@@ -119,11 +119,11 @@ actions_public = {
     },
     'register': {
         'func': register,
-        'methods': ['GET', 'POST'],
+        'methods': ['POST'],
     },
     'login': {
         'func': login,
-        'methods': ['GET', 'POST'],
+        'methods': ['POST'],
     },
 }
 
@@ -131,16 +131,16 @@ def make_handler(public=True):
     actions = actions_public if public else actions_private
     def do_stuff(action):
         kwargs = dict(request.args.items()) or dict(request.form.items())
-        # try:
-        if action in actions:
-            assert request.method in actions[action]['methods']
-            data = actions[action]['func'](**kwargs) or default_response
-            if isinstance(data, wrappers.Response):
-                return data
-            return jsonify(data)
-        else:
-            abort(404)
-        # except Exception as e:
-        #     print(e)
-        #     abort(403)
+        try:
+            if action in actions:
+                assert request.method in actions[action]['methods']
+                data = actions[action]['func'](**kwargs) or default_response
+                if isinstance(data, wrappers.Response):
+                    return data
+                return jsonify(data)
+            else:
+                abort(404)
+        except Exception as e:
+            print(e)
+            abort(403)
     return do_stuff
