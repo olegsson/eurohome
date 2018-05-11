@@ -136,7 +136,6 @@ def make_handler(public=True):
             assert request.method in actions[action]['methods']
             data = actions[action]['func'](**kwargs) or default_response
             if isinstance(data, wrappers.Response):
-                print('yay')
                 return data
             return jsonify(data)
         else:
