@@ -7,7 +7,7 @@ from utils import db_execute, salt_hash, jsonify, default_response, check_auth
 def vote(country, magnitude):
     name = request.name
     magnitude = int(magnitude)
-    assert 0 < magnitude <= 10
+    assert 0 < magnitude <= 12 and magnitude != 11
     db_execute("""
         INSERT OR REPLACE INTO votes(user_id, contender_id, magnitude)
         VALUES (

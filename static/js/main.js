@@ -10,7 +10,7 @@ const session_data = {
     viewing_user: null,
     userlist_open: false,
     voting_for: null,
-    votes_allowed: [...Array(10).keys()].map(i => i+1),
+    votes_allowed: [...Array(10).keys()].concat([11]).map(i => i+1),
     search_str: '',
     search_focus: false
 };
